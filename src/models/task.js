@@ -20,6 +20,20 @@ const taskSchema = new mongoose.Schema({
 }, {
     timestamps: true,
 });
+taskSchema.post('save', function(doc, next) {
+    io.emit('taskAdded', doc);
+    next();
+});
+
+taskSchema.post('findOneAndUpdate', function(doc, next) {
+    io.emit('taskUpdated', doc);
+    next();
+});
+
+taskSchema.post('findOneAndDelete', function(doc, next) {
+    io.emit('taskDeleted', doc._id);
+    next();
+});
 
 const Task = mongoose.model('Task', taskSchema);
 
