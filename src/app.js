@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const taskRoutes = require('./routes/taskRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(taskRoutes);
+app.use(authRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
