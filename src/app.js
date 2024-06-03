@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const http = require('http');
 const socketIo = require('socket.io');
 
+// Load environment variables from .env file
 dotenv.config();
 
 const app = express();
