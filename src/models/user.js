@@ -23,6 +23,9 @@ const userSchema = new mongoose.Schema({
     timestamps: true,
 });
 
+// Indexes
+userSchema.index({ username: 1 }, { unique: true });
+
 // Hash the plain text password before saving
 userSchema.pre('save', async function(next) {
     const user = this;
@@ -35,7 +38,7 @@ userSchema.pre('save', async function(next) {
 // Generate auth token
 userSchema.methods.generateAuthToken = async function() {
     const user = this;
-    const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
+    const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, { expiresIn: '7d' });
     user.tokens = user.tokens.concat({ token });
     await user.save();
     return token;
