@@ -16,43 +16,53 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('register-username').value;
         const password = document.getElementById('register-password').value;
 
-        const response = await fetch('/users', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password }),
-        });
+        try {
+            const response = await fetch('/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            });
 
-        const data = await response.json();
-        if (response.ok) {
-            authToken = data.token;
-            authDiv.style.display = 'none';
-            tasksDiv.style.display = 'block';
-            loadTasks();
-        } else {
-            alert(data.error || 'Registration failed');
+            const data = await response.json();
+            if (response.ok) {
+                authToken = data.token;
+                authDiv.style.display = 'none';
+                tasksDiv.style.display = 'block';
+                loadTasks();
+            } else {
+                alert(data.error || 'Registration failed');
+            }
+        } catch (error) {
+            alert('An unexpected error occurred during registration');
+            console.error(error);
         }
     });
-
+    
     // Login User
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
 
-        const response = await fetch('/users/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password }),
-        });
+        try {
+            const response = await fetch('/users/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            });
 
-        const data = await response.json();
-        if (response.ok) {
-            authToken = data.token;
-            authDiv.style.display = 'none';
-            tasksDiv.style.display = 'block';
-            loadTasks();
-        } else {
-            alert(data.error || 'Login failed');
+            const data = await response.json();
+            if (response.ok) {
+                authToken = data.token;
+                authDiv.style.display = 'none';
+                tasksDiv.style.display = 'block';
+                loadTasks();
+            } else {
+                alert(data.error || 'Login failed');
+            }
+        } catch (error) {
+            alert('An unexpected error occurred during login');
+            console.error(error);
         }
     });
 
@@ -62,36 +72,46 @@ document.addEventListener('DOMContentLoaded', () => {
         const title = document.getElementById('task-title').value;
         const description = document.getElementById('task-description').value;
 
-        const response = await fetch('/tasks', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`,
-            },
-            body: JSON.stringify({ title, description }),
-        });
+        try {
+            const response = await fetch('/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`,
+                },
+                body: JSON.stringify({ title, description }),
+            });
 
-        const data = await response.json();
-        if (response.ok) {
-            addTaskToList(data);
-            socket.emit('taskAdded', data);
-        } else {
-            alert(data.error || 'Task creation failed');
+            const data = await response.json();
+            if (response.ok) {
+                addTaskToList(data);
+                socket.emit('taskAdded', data);
+            } else {
+                alert(data.error || 'Task creation failed');
+            }
+        } catch (error) {
+            alert('An unexpected error occurred during task creation');
+            console.error(error);
         }
     });
 
     // Load Tasks
     async function loadTasks() {
-        const response = await fetch('/tasks', {
-            headers: { 'Authorization': `Bearer ${authToken}` },
-        });
+        try {
+            const response = await fetch('/tasks', {
+                headers: { 'Authorization': `Bearer ${authToken}` },
+            });
 
-        const data = await response.json();
-        if (response.ok) {
-            taskList.innerHTML = '';
-            data.forEach(task => addTaskToList(task));
-        } else {
-            alert(data.error || 'Failed to load tasks');
+            const data = await response.json();
+            if (response.ok) {
+                taskList.innerHTML = '';
+                data.forEach(task => addTaskToList(task));
+            } else {
+                alert(data.error || 'Failed to load tasks');
+            }
+        } catch (error) {
+            alert('An unexpected error occurred while loading tasks');
+            console.error(error);
         }
     }
 
@@ -115,37 +135,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Toggle Task Completion
     async function toggleTaskCompletion(taskId, listItem) {
-        const response = await fetch(`/tasks/${taskId}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`,
-            },
-            body: JSON.stringify({ completed: !listItem.classList.contains('completed') }),
-        });
+        try {
+            const response = await fetch(`/tasks/${taskId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`,
+                },
+                body: JSON.stringify({ completed: !listItem.classList.contains('completed') }),
+            });
 
-        const data = await response.json();
-        if (response.ok) {
-            listItem.classList.toggle('completed');
-            socket.emit('taskUpdated', data);
-        } else {
-            alert(data.error || 'Failed to update task');
+            const data = await response.json();
+            if (response.ok) {
+                listItem.classList.toggle('completed');
+                socket.emit('taskUpdated', data);
+            } else {
+                alert(data.error || 'Failed to update task');
+            }
+        } catch (error) {
+            alert('An unexpected error occurred while updating task');
+            console.error(error);
         }
     }
 
     // Delete Task
     async function deleteTask(taskId, listItem) {
-        const response = await fetch(`/tasks/${taskId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${authToken}` },
-        });
+        try {
+            const response = await fetch(`/tasks/${taskId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${authToken}` },
+            });
 
-        if (response.ok) {
-            listItem.remove();
-            socket.emit('taskDeleted', taskId);
-        } else {
-            const data = await response.json();
-            alert(data.error || 'Failed to delete task');
+            if (response.ok) {
+                listItem.remove();
+                socket.emit('taskDeleted', taskId);
+            } else {
+                const data = await response.json();
+                alert(data.error || 'Failed to delete task');
+            }
+        } catch (error) {
+            alert('An unexpected error occurred while deleting task');
+            console.error(error);
         }
     }
 
