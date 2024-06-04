@@ -27,7 +27,7 @@ router.post('/users/login', async (req, res) => {
         const token = await user.generateAuthToken();
         res.send({ user, token });
     } catch (error) {
-        res.status(400).send(error);
+        res.status(400).send({ error: 'Invalid login credentials' });
     }
 });
 
@@ -38,7 +38,7 @@ router.post('/users/logout', auth, async (req, res) => {
         await req.user.save();
         res.send();
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).send({ error: 'Failed to log out' });
     }
 });
 
@@ -49,7 +49,7 @@ router.post('/users/logoutAll', auth, async (req, res) => {
         await req.user.save();
         res.send();
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).send({ error: 'Failed to log out of all sessions' });
     }
 });
 
