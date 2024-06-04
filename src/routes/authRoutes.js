@@ -11,7 +11,12 @@ router.post('/users', async (req, res) => {
         const token = await user.generateAuthToken();
         res.status(201).send({ user, token });
     } catch (error) {
-        res.status(400).send(error);
+        if (error.code === 11000) {
+            // Duplicate key error code
+            res.status(400).send({ error: 'Username already exists' });
+        } else {
+            res.status(400).send(error);
+        }
     }
 });
 
